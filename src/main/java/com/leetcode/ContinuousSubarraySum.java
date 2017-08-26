@@ -1,5 +1,8 @@
 package com.leetcode;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /*
 Given a list of non-negative numbers and a target integer k, write a function to check if the array has a continuous subarray of size at least 2 that sums up to the multiple of k, that is, sums up to n*k where n is also an integer.
 
@@ -36,6 +39,30 @@ public class ContinuousSubarraySum {
                     return true;
                 }
             }
+        }
+        return false;
+    }
+
+    /*
+    We iterate through the input array exactly once,
+    keeping track of the running sum mod k of the elements in the process.
+    If we find that a running sum value at index j has been previously seen before in some earlier index i in the array,
+    then we know that the sub-array (i,j] contains a desired sum.
+    O(n) time O(k) space
+    * */
+    public boolean checkSubarraySum_alternative(int[] nums, int k) {
+        Map<Integer, Integer> map = new HashMap<Integer, Integer>() {{
+            put(0, -1);
+        }};
+        ;
+        int runningSum = 0;
+        for (int i = 0; i < nums.length; i++) {
+            runningSum += nums[i];
+            if (k != 0) runningSum %= k;
+            Integer prev = map.get(runningSum);
+            if (prev != null) {
+                if (i - prev > 1) return true;
+            } else map.put(runningSum, i);
         }
         return false;
     }
