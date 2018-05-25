@@ -73,7 +73,7 @@ public class WordLadderII {
         if (!wordList.contains(endWord)) {
             return Collections.EMPTY_LIST;
         }
-        Map<String, Set<String>> closeWords = initCloseWords(wordList, beginWord);
+        Map<String, Set<String>> closeWords = new HashMap<>();
         Map<String, Node> graph = new HashMap<>();
         Queue<Node> nodeQueue = new LinkedList<>();
         Node rootNode = new Node(beginWord, null);
@@ -82,7 +82,7 @@ public class WordLadderII {
 
         while(!nodeQueue.isEmpty() && (!graph.containsKey(endWord) || graph.get(endWord).level == nodeQueue.peek().level + 1)) {
             Node curNode = nodeQueue.poll();
-            for (String closeWord : closeWords.get(curNode.word)) {
+            for (String closeWord : closeWordsForWord(closeWords, wordList, curNode.word)) {
                 if ((!graph.containsKey(closeWord) || graph.get(closeWord).level == curNode.level + 1)){
                     if (!graph.containsKey(closeWord)) {
                         Node newWordNode = new Node(closeWord, curNode);
@@ -102,24 +102,17 @@ public class WordLadderII {
         return pathways;
     }
 
-    private Map<String,Set<String>> initCloseWords(List<String> wordList, String root) {
-        Map<String, Set<String>> closeWords = new HashMap<>();
-        closeWords.put(root, new HashSet<>());
-        for (String insideWord : wordList) {
-            if (isCloseWord(root, insideWord)) {
-                closeWords.get(root).add(insideWord);
-            }
-        }
-        for (String word : wordList) {
+    private Set<String> closeWordsForWord(Map<String, Set<String>> closeWords, List<String> wordList, String word) {
+        if (!closeWords.containsKey(word)) {
             closeWords.put(word, new HashSet<>());
-            for (String insideWord : wordList) {
-                if (closeWords.containsKey(insideWord) && closeWords.get(insideWord).contains(word)
-                    || isCloseWord(word, insideWord)) {
-                    closeWords.get(word).add(insideWord);
-                }
-            }
+               for (String insideWord : wordList) {
+                   if (closeWords.containsKey(insideWord) && closeWords.get(insideWord).contains(word)
+                        || isCloseWord(word, insideWord)) {
+                        closeWords.get(word).add(insideWord);
+                   }
+               }
         }
-        return closeWords;
+        return closeWords.get(word);
     }
 
     private static boolean isCloseWord(String start, String end) {
